@@ -40,9 +40,19 @@ function generateNonce(len) {
  * @param {String} [salt]
  * @return {String} digested password string
  */
-function digestPassword(password, salt) {
+function digestPassword(password, salt, algorithm) {
     var hash = (salt) ? crypto.createHmac('sha1', salt) : crypto.createHash('sha1');
     return hash.update(password).digest('hex');
+}
+
+/**
+ * digest file content.
+ *
+ * @param {String} file
+ * @return {String} digest string
+ */
+function digestFile(file) {
+    return require('crypto').createHash('md5').update(fs.readFileSync(file)).digest('hex');
 }
 
 /**
@@ -128,6 +138,7 @@ module.exports = {
     gravatarIcon: gravatarIcon,
     generateNonce: generateNonce,
     digestPassword: digestPassword,
+    digestFile: digestFile,
     join: join,
     split: split,
     includeProperties: includeProperties,
