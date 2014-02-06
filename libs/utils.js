@@ -2,6 +2,8 @@
 
 var
     crypto = require('crypto'),
+    util = require('util'),
+    fs = require('fs'),
     _ = require('lodash'),
     Q = require('q');
 
@@ -52,7 +54,17 @@ function digestPassword(password, salt, algorithm) {
  * @return {String} digest string
  */
 function digestFile(file) {
-    return require('crypto').createHash('md5').update(fs.readFileSync(file)).digest('hex');
+    return crypto.createHash('md5').update(fs.readFileSync(file)).digest('hex');
+}
+
+/**
+ * get dump string for debug.
+ *
+ * @param {*} obj
+ * @return {String} dump string
+ */
+function dump(obj) {
+    return util.inspect(module.exports, {depth: null})
 }
 
 /**
@@ -139,6 +151,7 @@ module.exports = {
     generateNonce: generateNonce,
     digestPassword: digestPassword,
     digestFile: digestFile,
+    dump: dump,
     join: join,
     split: split,
     includeProperties: includeProperties,
