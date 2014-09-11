@@ -7,6 +7,23 @@ var
     _ = require('lodash'),
     Q = require('q');
 
+
+/**
+ * get a non-crypto hash code from a string.
+ *
+ * @param {string} str
+ * @returns {number} unsigned 32bit hash code
+ * @see http://www.cse.yorku.ca/~oz/hash.html
+ */
+function hashCode(str) {
+    var hash = HASH_SEED;
+    for (var i = str.length; i >= 0; --i) {
+        hash = (hash * 33) ^ str.charCodeAt(--i);
+    }
+    // turn to unsigned 32bit int
+    return hash >>> 0;
+}
+
 /**
  * get gravatar url.
  *
@@ -147,6 +164,7 @@ function extractProperty(objects, property) {
 }
 
 module.exports = {
+    hashCode: hashCode,
     gravatarIcon: gravatarIcon,
     generateNonce: generateNonce,
     digestPassword: digestPassword,
