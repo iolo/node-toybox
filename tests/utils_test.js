@@ -1,72 +1,62 @@
 'use strict';
 
 var
+    assert = require('assert'),
     utils = require('../libs/utils'),
     debug = require('debug')('test');
 
-module.exports = {
-    test_split: function (test) {
+describe('utils', function () {
+    it('split', function () {
         var result = utils.split('a,b,c');
-        test.equal(result.length, 3);
-        test.equal(result[0], 'a');
-        test.equal(result[1], 'b');
-        test.equal(result[2], 'c');
-        test.done();
-    },
-    test_split_whitespace: function (test) {
+        assert.equal(result.length, 3);
+        assert.equal(result[0], 'a');
+        assert.equal(result[1], 'b');
+        assert.equal(result[2], 'c');
+    });
+    it('split whitespace', function () {
         var result = utils.split('  a,  b,  c  ');
-        test.equal(result.length, 3);
-        test.equal(result[0], 'a');
-        test.equal(result[1], 'b');
-        test.equal(result[2], 'c');
-        test.done();
-    },
-    test_split_empty: function (test) {
+        assert.equal(result.length, 3);
+        assert.equal(result[0], 'a');
+        assert.equal(result[1], 'b');
+        assert.equal(result[2], 'c');
+    });
+    it('split empty', function () {
         var result = utils.split('');
-        test.equal(result.length, 0);
-        test.done();
-    },
-    test_split_null: function (test) {
+        assert.equal(result.length, 0);
+    });
+    it('split null', function () {
         var result = utils.split(null);
-        test.equal(result.length, 0);
-        test.done();
-    },
-    test_split_undefined: function (test) {
+        assert.equal(result.length, 0);
+    });
+    it('split undefined', function () {
         var result = utils.split();
-        test.equal(result.length, 0);
-        test.done();
-    },
-    test_split_blankTag: function (test) {
+        assert.equal(result.length, 0);
+    });
+    it('split blank', function () {
         var result = utils.split('a,,b,   ,c');
-        test.equal(result.length, 3);
-        test.equal(result[0], 'a');
-        test.equal(result[1], 'b');
-        test.equal(result[2], 'c');
-        test.done();
-    },
-    test_join: function (test) {
+        assert.equal(result.length, 3);
+        assert.equal(result[0], 'a');
+        assert.equal(result[1], 'b');
+        assert.equal(result[2], 'c');
+    });
+    it('join', function () {
         var result = utils.join(['a', 'b', 'c']);
-        test.equal(result, 'a,b,c');
-        test.done();
-    },
-    test_join_blankTag: function (test) {
+        assert.equal(result, 'a,b,c');
+    });
+    it('join blank', function () {
         var result = utils.join(['a', '', 'b', '   ', 'c']);
-        test.equal(result, 'a,b,c');
-        test.done();
-    },
-    test_join_empty: function (test) {
+        assert.equal(result, 'a,b,c');
+    });
+    it('join empty', function () {
         var result = utils.join([]);
-        test.equal(result, '');
-        test.done();
-    },
-    test_join_null: function (test) {
+        assert.equal(result, '');
+    });
+    it('join null', function () {
         var result = utils.join(null);
-        test.equal(result, '');
-        test.done();
-    },
-    test_join_undefined: function (test) {
+        assert.equal(result, '');
+    });
+    it('join undefined', function () {
         var result = utils.join();
-        test.equal(result, '');
-        test.done();
-    },
-};
+        assert.equal(result, '');
+    });
+});

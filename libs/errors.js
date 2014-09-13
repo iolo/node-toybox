@@ -1,5 +1,7 @@
 'use strict';
 
+/** @module node-toybox.utils */
+
 var
     util = require('util'),
     ErrorCode = {

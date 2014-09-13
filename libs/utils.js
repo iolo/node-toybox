@@ -1,12 +1,13 @@
 'use strict';
 
+/** @module node-toybox.utils */
+
 var
     crypto = require('crypto'),
     util = require('util'),
     fs = require('fs'),
     _ = require('lodash'),
     Q = require('q');
-
 
 /**
  * get a non-crypto hash code from a string.
@@ -16,7 +17,7 @@ var
  * @see http://www.cse.yorku.ca/~oz/hash.html
  */
 function hashCode(str) {
-    var hash = HASH_SEED;
+    var hash = 0xdeadbeef;
     for (var i = str.length; i >= 0; --i) {
         hash = (hash * 33) ^ str.charCodeAt(--i);
     }
@@ -60,7 +61,7 @@ function generateNonce(len) {
  * @return {String} digested password string
  */
 function digestPassword(password, salt, algorithm) {
-    var hash = (salt) ? crypto.createHmac('sha1', salt) : crypto.createHash('sha1');
+    var hash = (salt) ? crypto.createHmac(algorithm || 'sha1', salt) : crypto.createHash(algorithm || 'sha1');
     return hash.update(password).digest('hex');
 }
 
@@ -81,7 +82,7 @@ function digestFile(file) {
  * @return {String} dump string
  */
 function dump(obj) {
-    return util.inspect(module.exports, {depth: null})
+    return util.inspect(obj, {depth: null});
 }
 
 /**
@@ -96,7 +97,7 @@ function join(tags, separator) {
     }
 
     return tags.reduce(function (tags, tag) {
-        var tag = tag.trim();
+        tag = tag.trim();
         if (tag) {
             tags.push(tag);
         }
@@ -115,7 +116,7 @@ function split(tags, separator) {
         return [];
     }
     return tags.split(separator || ',').reduce(function (tags, tag) {
-        var tag = tag.trim();
+        tag = tag.trim();
         if (tag) {
             tags.push(tag);
         }
