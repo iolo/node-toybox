@@ -2,7 +2,7 @@
 
 var
     assert = require('assert'),
-    utils = require('../libs/utils'),
+    utils = require('../utils'),
     debug = require('debug')('test');
 
 describe('utils', function () {

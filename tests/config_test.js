@@ -12,7 +12,7 @@ describe('config', function () {
         delete require.cache[require.resolve('./config/development')];
         delete require.cache[require.resolve('./config/staging')];
         delete require.cache[require.resolve('./config/production')];
-        delete require.cache[require.resolve('../libs/config')];
+        delete require.cache[require.resolve('../config')];
     });
     it('should load without env/config', function () {
         process.env.HELLO_ENV = '';

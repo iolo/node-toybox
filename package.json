@@ -1,6 +1,6 @@
 {
     "name": "node-toybox",
-    "version": "0.0.7",
+    "version": "0.0.8",
     "description": "My Own Extra Stuff for NodeJS",
     "author": "Dongsu Jang <iolothebard@gmail.com>",
     "repository": {
@@ -22,9 +22,5 @@
         "grunt-mocha-test": "latest",
         "mocha": "latest",
         "nodeunit": "latest"
-    },
-    "directories": {
-        "lib": "./libs"
-    },
-    "main": "./libs"
+    }
 }
