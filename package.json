@@ -1,6 +1,6 @@
 {
     "name": "node-toybox",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "description": "My Own Extra Stuff for NodeJS",
     "author": "Dongsu Jang <iolothebard@gmail.com>",
     "repository": {
@@ -26,5 +26,5 @@
     "directories": {
         "lib": "./libs"
     },
-    "main": "./index"
+    "main": "./libs"
 }
