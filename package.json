@@ -20,7 +20,6 @@
         "grunt": "latest",
         "grunt-contrib-jshint": "latest",
         "grunt-mocha-test": "latest",
-        "mocha": "latest",
-        "nodeunit": "latest"
+        "mocha": "latest"
     }
 }
