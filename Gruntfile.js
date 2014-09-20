@@ -7,6 +7,7 @@ module.exports = function (grunt) {
                 node: true,
                 '-W030': true,//Expected an assignment or function call and instead saw an expression.
                 '-W097': true,//Use the function form of "use strict".
+                'newcap': false,//Missing 'new' prefix when invoking a constructor.
                 globals: {}
             },
             all: ['*.js']
