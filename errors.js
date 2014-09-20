@@ -5,11 +5,13 @@
 var
     util = require('util'),
     ErrorCode = {
-        UNKNOWN: 0
+        UNKNOWN: 0,
+        HTTP: 8000
         // TODO: ... common error codes
     },
     ErrorMessage = {
-        0: 'Unknown Error'
+        0: 'Unknown Error',
+        8000: 'Http Error'
         // TODO: ... common error messages
     };
 
@@ -37,6 +39,5 @@ module.exports = {
     ErrorCode: ErrorCode,
     ErrorMessage: ErrorMessage,
     CustomError: defineError('CustomError', Error),
-    // TODO: ... common error classes
     defineError: defineError
 };
