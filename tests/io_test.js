@@ -48,4 +48,26 @@ describe('io', function () {
             done();
         });
     });
+    it('createDirectory', function (done) {
+        var dir = '/tmp/foo/bar/baz/qux';
+        require('child_process').exec('rm -rf ' + dir, function (err) {
+            assert(!fs.existsSync(dir));
+            io.createDirectory(dir, function (err) {
+                assert.ifError(err);
+                assert(fs.existsSync(dir));
+                done();
+            });
+        });
+    });
+    it('forceDelete', function (done) {
+        var dir = '/tmp/foo/bar/baz/qux';
+        require('child_process').exec('mkdir -p ' + dir, function (err) {
+            assert(fs.existsSync(dir));
+            io.forceDelete('/tmp/foo', function (err) {
+                assert.ifError(err);
+                assert(!fs.existsSync(dir));
+                done();
+            });
+        });
+    });
 });

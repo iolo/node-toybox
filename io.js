@@ -119,18 +119,72 @@ function isFileNewer(file, refFile, callback) {
  */
 function createDirectory(dir, callback) {
     fs.mkdir(dir, function (err) {
-        if (err) {
-            switch (err.code) {
-                case 'ENOENT':
-                    return createDirectory(path.dirname(dir), function (err) {
-                        return err ? callback(err) : createDirectory(dir, callback);
-                    });
-                case 'EEXIST':
-                    return callback();
-            }
-            return callback(err);
+        if (!err) {
+            return callback();
         }
-        return callback(null);
+        switch (err.code) {
+            case 'ENOENT':
+                return createDirectory(path.dirname(dir), function (err) {
+                    return err ? callback(err) : createDirectory(dir, callback);
+                });
+            case 'EEXIST':
+                return callback();
+        }
+        return callback(err);
+    });
+}
+
+/**
+ *
+ * @param {string} file
+ * @param {function} callback
+ */
+function forceDelete(file, callback) {
+    fs.unlink(file, function (err) {
+        if (!err) {
+            return callback();
+        }
+        switch (err.code) {
+            case 'ENOENT':
+                return callback();
+            case 'EPERM':
+            case 'EISDIR':
+                return fs.rmdir(file, function (err) {
+                    if (!err) {
+                        return callback();
+                    }
+                    switch (err.code) {
+                        case 'EEXISTS':
+                        case 'ENOTEMPTY':
+                            return fs.readdir(file, function (err, names) {
+                                if (err) {
+                                    return callback(err);
+                                }
+                                var remaining = names.length;
+                                names.forEach(function (name) {
+                                    var child = path.join(file, name);
+                                    forceDelete(child, function (err) {
+                                        if (err) {
+                                            if (remaining < 0) {
+                                                callback(err);
+                                            }
+                                            remaining = -1;
+                                            return;
+                                        }
+                                        remaining -= 1;
+                                        if (remaining === 0) {
+                                            return fs.rmdir(file, callback);
+                                        }
+                                    });
+                                });
+                            });
+                        default:
+                            return callback(err);
+                    }
+                });
+            default:
+                return callback(err);
+        }
     });
 }
 
@@ -142,5 +196,6 @@ module.exports = {
     copyStream: copyStream,
     copyFile: copyFile,
     isFileNew: isFileNewer,
-    createDirectory: createDirectory
+    createDirectory: createDirectory,
+    forceDelete: forceDelete
 };
