@@ -79,6 +79,26 @@ function waterfall(funcs, initial) {
 
 /**
  *
+ * @param {Array} arr
+ * @param {function(prev:*,curr:*,next:function)} iterator **should** invoke `next()` with error or next value.
+ * @param {function} callback final callback.
+ * @param {*} [initialValue]
+ */
+function reduce(arr, iterator, callback, initialValue) {
+    if (!arr.length) {
+        return callback(null, initialValue);
+    }
+    iterator(initialValue, arr[0], function (err, nextValue) {
+        if (err) {
+            return callback(err);
+        }
+        // NOTE: async recursion
+        reduce(arr.slice(1), iterator, callback, nextValue);
+    });
+}
+
+/**
+ *
  * @param {object|function} obj object to wrap or `constructor` to wrap instance methods.
  * @param {*} [opts]
  * @param {string} [opts.prefix='']
@@ -126,5 +146,6 @@ module.exports = {
     serial: serial,
     series: serial, // alias
     waterfall: waterfall,
+    reduce: reduce,
     qualify: qualify
 };
