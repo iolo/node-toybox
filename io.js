@@ -264,7 +264,7 @@ function concatFiles(files, dst, callback) {
                                 return callback(err);
                             }
                             // NOTE: one-time recursion with existing parent directory
-                            return concatFiles(files, dst, callback)
+                            return concatFiles(files, dst, callback);
                         });
                     default:
                         return callback(err);

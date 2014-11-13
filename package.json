@@ -19,6 +19,7 @@
     "devDependencies": {
         "grunt": "latest",
         "grunt-contrib-jshint": "latest",
+        "grunt-doxx": "^0.1.1",
         "grunt-mocha-test": "latest",
         "mocha": "latest"
     }
