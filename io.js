@@ -255,7 +255,7 @@ function concatFiles(files, dst, callback) {
         return callback(null, dst);
     }
     if (typeof dst === 'string') {
-        return fs.open(dst, 'a', function (err, fd) {
+        return fs.open(dst, 'w', function (err, fd) {
             if (err) {
                 switch (err.code) {
                     case 'ENOENT':
