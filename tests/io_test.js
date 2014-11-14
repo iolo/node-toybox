@@ -23,6 +23,32 @@ describe('io', function () {
         require('child_process').exec('rm -rf ' + TEST_DIR, done);
     });
 
+    it('toStream binary', function (done) {
+        var data = new Buffer(0);
+        io.toStream(new Buffer([1, 2, 3, 4, 5]))
+            .on('data', function (chunk) {
+                debug('toStream:data:', chunk);
+                data = Buffer.concat([data, chunk]);
+            })
+            .once('error', assert.ifError)
+            .once('end', function () {
+                assert.deepEqual(data.toJSON(), [1, 2, 3, 4, 5]);
+                done();
+            });
+    });
+    it('toStream string', function (done) {
+        var data = '';
+        io.toStream(TEST_DATA)
+            .on('data', function (chunk) {
+                debug('toStream:data:', chunk);
+                data += chunk;
+            })
+            .once('error', assert.ifError)
+            .once('end', function () {
+                assert.equal(data, TEST_DATA);
+                done();
+            });
+    });
     it('toBuffer binary', function (done) {
         io.toBuffer(fs.createReadStream(TEST_FILE), function (err, result) {
             assert.ifError(err);
@@ -56,6 +82,37 @@ describe('io', function () {
             debug('toString:', result);
             assert.ok(typeof result === 'string');
             assert.equal(result, TEST_DATA);
+            done();
+        });
+    });
+    it('copyStream', function (done) {
+        io.copyStream(fs.createReadStream(TEST_FILE, 'utf8'), fs.createWriteStream('/tmp/io-test-stream'), function (err) {
+            assert.ifError(err);
+            assert(fs.readFileSync('/tmp/io-test-stream', 'utf8'), TEST_DATA);
+            done();
+        });
+    });
+    it('concatStreams', function (done) {
+        var readables = [TEST_FILE, TEST_FILE, TEST_FILE].map(function (f) {
+            return fs.createReadStream(f);
+        });
+        io.concatStreams(readables, fs.createWriteStream('/tmp/io-test-stream-concat'), function (err) {
+            assert.ifError(err);
+            assert(fs.readFileSync('/tmp/io-test-file-concat', 'utf8'), TEST_DATA + TEST_DATA + TEST_DATA);
+            done();
+        });
+    });
+    it('copyFile', function (done) {
+        io.copyFile(TEST_FILE, '/tmp/io-test-file', function (err) {
+            assert.ifError(err);
+            assert(fs.readFileSync('/tmp/io-test-file', 'utf8'), TEST_DATA);
+            done();
+        });
+    });
+    it('concatFiles', function (done) {
+        io.concatFiles([TEST_FILE, TEST_FILE, TEST_FILE], '/tmp/io-test-file-concat', function (err) {
+            assert.ifError(err);
+            assert(fs.readFileSync('/tmp/io-test-file-concat', 'utf8'), TEST_DATA + TEST_DATA + TEST_DATA);
             done();
         });
     });
@@ -266,12 +323,5 @@ describe('io', function () {
             assert.equal(result.length, 0);
             done();
         }, true);
-    });
-    it('concatFiles', function (done) {
-        io.concatFiles([TEST_FILE, TEST_FILE, TEST_FILE], '/tmp/io-test-concat', function (err) {
-            assert.ifError(err);
-            assert(fs.readFileSync('/tmp/io-test-concat', 'utf8'), TEST_DATA + TEST_DATA + TEST_DATA);
-            done();
-        });
     });
 });

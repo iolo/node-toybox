@@ -12,7 +12,7 @@ var
 /**
  *
  * @param {string|Buffer|*} obj
- * @param {*} opts
+ * @param {*} [opts]
  * @constructor
  * @extends Stream.Readable
  */
@@ -40,14 +40,14 @@ MemoryStream.prototype._read = function () {
  * @param {function(err,Buffer)} callback
  */
 function toBuffer(readable, callback) {
-    var result;
+    var result = new Buffer(0);
     readable
         .once('error', callback)
         .once('end', function () {
             callback(null, result);
         })
         .on('data', function (chunk) {
-            result = (result) ? Buffer.concat([result, chunk]) : chunk;
+            result = Buffer.concat([result, chunk]);
         });
 }
 
@@ -75,8 +75,19 @@ function toString(readable, callback) {
  * @param {function} callback
  */
 function copyStream(src, dst, callback) {
-    dst.once('error', callback).once('close', callback);
-    src.once('error', callback).pipe(dst);
+    src.once('error', callback).once('end', callback).pipe(dst.once('error', callback), {end: false});
+}
+
+/**
+ *
+ * @param {Array.<Stream.Readable>} readables
+ * @param {Stream.Writable} writable
+ * @param {function} callback
+ */
+function concatStreams(readables, writable, callback) {
+    async.reduce(readables, function (prev, readable, next) {
+        copyStream(readable, writable, next);
+    }, callback);
 }
 
 /**
@@ -94,6 +105,23 @@ function copyFile(src, dst, callback) {
             return callback(err, dst);
         });
     });
+}
+
+/**
+ *
+ * @param {Array.<string>} files
+ * @param {string} dst
+ * @param {function} callback
+ */
+function concatFiles(files, dst, callback) {
+    async.reduce(files, function (prev, file, next) {
+        fs.readFile(file, null, function (err, data) {
+            if (err) {
+                return next(err);
+            }
+            fs.appendFile(dst, data, null, next);
+        });
+    }, callback);
 }
 
 /**
@@ -243,68 +271,19 @@ function iterateFiles(dir, fileFilter, dirFilter, callback, recursive) {
     });
 }
 
-/**
- *
- * @param {Array.<string>} files
- * @param {string} dst
- * @param {function} callback
- */
-function concatFiles(files, dst, callback) {
-    if (!files.length) {
-        fs.close(dst);
-        return callback(null, dst);
-    }
-    if (typeof dst === 'string') {
-        return fs.open(dst, 'w', function (err, fd) {
-            if (err) {
-                switch (err.code) {
-                    case 'ENOENT':
-                        return createDirectory(path.dirname(dst), function (err) {
-                            if (err) {
-                                return callback(err);
-                            }
-                            // NOTE: one-time recursion with existing parent directory
-                            return concatFiles(files, dst, callback);
-                        });
-                    default:
-                        return callback(err);
-                }
-            }
-            // NOTE: one-time recursion with file descriptor instead of file path
-            return concatFiles(files, fd, callback);
-        });
-    }
-    fs.readFile(files[0], null, function (err, data) {
-        if (err) {
-            return callback(err);
-        }
-        var errorOccurred = false;
-        fs.write(dst, data, 0, data.length, null, function (err) {
-            if (errorOccurred) {
-                return;
-            }
-            if (err) {
-                errorOccurred = true;
-                return callback(err);
-            }
-            // NOTE: async recursion for remaining files...
-            concatFiles(files.slice(1), dst, callback);
-        });
-    });
-}
-
 module.exports = {
     MemoryStream: MemoryStream,
     toStream: MemoryStream,
     toBuffer: toBuffer,
     toString: toString,
     copyStream: copyStream,
+    concatStreams: concatStreams,
     copyFile: copyFile,
-    isFileNew: isFileNewer,
+    concatFiles: concatFiles,
+    isFileNewer: isFileNewer,
     createDirectory: createDirectory,
     cleanDirectory: cleanDirectory,
     deleteDirectory: deleteDirectory,
     forceDelete: forceDelete,
-    iterateFiles: iterateFiles,
-    concatFiles: concatFiles
+    iterateFiles: iterateFiles
 };
