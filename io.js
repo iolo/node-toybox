@@ -114,25 +114,28 @@ function copyFile(src, dst, callback) {
  * @param {function} callback
  */
 function concatFiles(files, dst, callback) {
-    async.reduce(files, function (prev, file, next) {
-        fs.readFile(file, null, function (err, data) {
-            if (err) {
-                return next(err);
-            }
-            fs.appendFile(dst, data, null, next);
-        });
-    }, callback);
+    fs.unlink(dst, function (err) {
+        // ignore unlink error
+        async.reduce(files, function (prev, file, next) {
+            fs.readFile(file, null, function (err, data) {
+                if (err) {
+                    return next(err);
+                }
+                fs.appendFile(dst, data, null, next);
+            });
+        }, callback);
+    });
 }
 
 /**
  *
  * @param {string} file
  * @param {string} refFile
- * @param {function(boolean)} callback `true` if file is newer than refFile, `false` if not newer, or `undefined`.
+ * @param {function(boolean)} callback `true` if `file` is newer than `refFile`, `false` if older or equal, or `undefined` if error.
  */
 function isFileNewer(file, refFile, callback) {
     if (file === refFile) {
-        return callback();//undefined
+        return callback(false);
     }
     fs.stat(file, function (err, stats) {
         if (err) {
@@ -142,6 +145,7 @@ function isFileNewer(file, refFile, callback) {
             if (err) {
                 return callback();//undefined
             }
+            console.log(stats.mtime, refStats.mtime);
             return callback(stats.mtime > refStats.mtime);
         });
     });

@@ -88,7 +88,7 @@ describe('io', function () {
     it('copyStream', function (done) {
         io.copyStream(fs.createReadStream(TEST_FILE, 'utf8'), fs.createWriteStream('/tmp/io-test-stream'), function (err) {
             assert.ifError(err);
-            assert(fs.readFileSync('/tmp/io-test-stream', 'utf8'), TEST_DATA);
+            assert.equal(fs.readFileSync('/tmp/io-test-stream', 'utf8'), TEST_DATA);
             done();
         });
     });
@@ -98,22 +98,55 @@ describe('io', function () {
         });
         io.concatStreams(readables, fs.createWriteStream('/tmp/io-test-stream-concat'), function (err) {
             assert.ifError(err);
-            assert(fs.readFileSync('/tmp/io-test-file-concat', 'utf8'), TEST_DATA + TEST_DATA + TEST_DATA);
+            assert.equal(fs.readFileSync('/tmp/io-test-file-concat', 'utf8'), TEST_DATA + TEST_DATA + TEST_DATA);
             done();
         });
     });
     it('copyFile', function (done) {
         io.copyFile(TEST_FILE, '/tmp/io-test-file', function (err) {
             assert.ifError(err);
-            assert(fs.readFileSync('/tmp/io-test-file', 'utf8'), TEST_DATA);
+            assert.equal(fs.readFileSync('/tmp/io-test-file', 'utf8'), TEST_DATA);
             done();
         });
     });
     it('concatFiles', function (done) {
         io.concatFiles([TEST_FILE, TEST_FILE, TEST_FILE], '/tmp/io-test-file-concat', function (err) {
             assert.ifError(err);
-            assert(fs.readFileSync('/tmp/io-test-file-concat', 'utf8'), TEST_DATA + TEST_DATA + TEST_DATA);
+            assert.equal(fs.readFileSync('/tmp/io-test-file-concat', 'utf8'), TEST_DATA + TEST_DATA + TEST_DATA);
             done();
+        });
+    });
+    describe('isFileNewer', function () {
+        it('should return false for same files', function (done) {
+            io.isFileNewer(TEST_FILE, TEST_FILE, function (newer) {
+                assert(newer === false);
+                done();
+            })
+        });
+        it('should return undefined for not existing files', function (done) {
+            io.isFileNewer(TEST_FILE, TEST_FILE + Date.now(), function (newer) {
+                assert(typeof newer === 'undefined');
+                io.isFileNewer(TEST_FILE + Date.now(), TEST_FILE, function (newer) {
+                    io.isFileNewer(TEST_FILE + Date.now(), TEST_FILE + Date.now() + 123, function (newer) {
+                        assert(typeof newer === 'undefined');
+                        done();
+                    });
+                });
+            })
+        });
+        it('should be true or false for existing files', function (done) {
+            setTimeout(function () {
+                require('child_process').exec('cp ' + TEST_FILE + ' /tmp/io-test-file-copy', function (err) {
+                    assert(fs.existsSync('/tmp/io-test-file-copy'));
+                    io.isFileNewer('/tmp/io-test-file-copy', TEST_FILE, function (newer) {
+                        assert(newer === true);
+                        io.isFileNewer(TEST_FILE, '/tmp/io-test-file-copy', function (newer) {
+                            assert(newer === false);
+                            done();
+                        });
+                    });
+                });
+            }, 1000);
         });
     });
     it('createDirectory', function (done) {
