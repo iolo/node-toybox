@@ -128,15 +128,21 @@ function concatFiles(files, dst, callback) {
  *
  * @param {string} file
  * @param {string} refFile
- * @param {function(boolean)} callback
+ * @param {function(boolean)} callback `true` if file is newer than refFile, `false` if not newer, or `undefined`.
  */
 function isFileNewer(file, refFile, callback) {
+    if (file === refFile) {
+        return callback();//undefined
+    }
     fs.stat(file, function (err, stats) {
-        if (err || !stats.isFile()) {
-            return callback(false);
+        if (err) {
+            return callback();//undefined
         }
         fs.stat(refFile, function (err, refStats) {
-            return callback(!err && refStats.isFile() && (stats.mtime > refStats.mtime));
+            if (err) {
+                return callback();//undefined
+            }
+            return callback(stats.mtime > refStats.mtime);
         });
     });
 }
@@ -230,10 +236,10 @@ function forceDelete(file, callback) {
 /**
  *
  * @param {string} dir
- * @param {function(file,name,stats):boolean} [fileFilter] returns `true` to iterate, `false` to skip.
- * @param {function(file,name,stats):boolean} [dirFilter] returns `true` to iterate, `false` to skip.
- * @param {function(err,result)} [callback]
- * @param {boolean} [recursive]
+ * @param {function(file,name,stats):boolean} [fileFilter] returns `true` to include, otherwise to exclude.
+ * @param {function(file,name,stats):boolean} [dirFilter] returns `true` to include, otherwise to exclude.
+ * @param {function} [callback]
+ * @param {boolean} [recursive=false]
  * @returns {*}
  */
 function iterateFiles(dir, fileFilter, dirFilter, callback, recursive) {
