@@ -32,13 +32,32 @@ function hashCode(str) {
  * @param {Number} [size]
  * @return {String} gravatar url
  */
-function gravatarIcon(email, size) {
+function gravatarUrl(email, size) {
     var url = 'http://www.gravatar.com/avatar/';
     if (email) {
         url += crypto.createHash('md5').update(email.toLowerCase()).digest('hex');
     }
     if (size) {
         url += '?s=' + size;
+    }
+    return url;
+}
+
+/**
+ * get placeholder image url.
+ *
+ * @param {number} width
+ * @param {number} [height=width]
+ * @param {string} [text]
+ * @returns {string} placeholder image url
+ */
+function placeholderUrl(width, height, text) {
+    var url = 'http://placehold.it/' + width;
+    if (height) {
+        url += 'x' + height;
+    }
+    if (text) {
+        url += '&text=' + encodeURIComponent(text);
     }
     return url;
 }
@@ -58,21 +77,25 @@ function generateNonce(len) {
  *
  * @param {String} password
  * @param {String} [salt]
+ * @param {String} [algorithm='sha1']  'sha1', 'md5', 'sha256', 'sha512'...
+ * @param {String} [encoding='hex'] 'hex', 'binary' or 'base64'
  * @return {String} digested password string
  */
-function digestPassword(password, salt, algorithm) {
+function digestPassword(password, salt, algorithm, encoding) {
     var hash = (salt) ? crypto.createHmac(algorithm || 'sha1', salt) : crypto.createHash(algorithm || 'sha1');
-    return hash.update(password).digest('hex');
+    return hash.update(password).digest(encoding || 'hex');
 }
 
 /**
  * digest file content.
  *
  * @param {String} file
+ * @param {String} [algorithm='md5']  'sha1', 'md5', 'sha256', 'sha512'...
+ * @param {String} [encoding='hex'] 'hex', 'binary' or 'base64'
  * @return {String} digest string
  */
-function digestFile(file) {
-    return crypto.createHash('md5').update(fs.readFileSync(file)).digest('hex');
+function digestFile(file, algorithm, encoding) {
+    return crypto.createHash(algorithm || 'md5').update(fs.readFileSync(file)).digest(encoding || 'hex');
 }
 
 /**
@@ -166,7 +189,8 @@ function extractProperty(objects, property) {
 
 module.exports = {
     hashCode: hashCode,
-    gravatarIcon: gravatarIcon,
+    gravatarUrl: gravatarUrl,
+    placeholderUrl: placeholderUrl,
     generateNonce: generateNonce,
     digestPassword: digestPassword,
     digestFile: digestFile,

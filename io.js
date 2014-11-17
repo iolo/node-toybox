@@ -72,10 +72,11 @@ function toString(readable, callback) {
  *
  * @param {Stream.Readable|EventEmitter} src
  * @param {Stream.Writable|EventEmitter} dst
+ * @param {boolean} [noEnd=false] do not close stream after copy
  * @param {function} callback
  */
-function copyStream(src, dst, callback) {
-    src.once('error', callback).once('end', callback).pipe(dst.once('error', callback), {end: false});
+function copyStream(src, dst, callback, noEnd) {
+    src.once('error', callback).once('end', callback).pipe(dst.once('error', callback), {end: !noEnd});
 }
 
 /**
@@ -86,8 +87,13 @@ function copyStream(src, dst, callback) {
  */
 function concatStreams(readables, writable, callback) {
     async.reduce(readables, function (prev, readable, next) {
-        copyStream(readable, writable, next);
-    }, callback);
+        copyStream(readable, writable, next, true);
+    }, function (err) {
+        if (err) {
+            return callback(err);
+        }
+        writable.end(callback);
+    });
 }
 
 /**
@@ -97,12 +103,17 @@ function concatStreams(readables, writable, callback) {
  * @param {function} callback
  */
 function copyFile(src, dst, callback) {
-    createDirectory(path.dirname(dst), function (err) {
+    fs.stat(src, function (err) {
         if (err) {
             return callback(err);
         }
-        copyStream(fs.createReadStream(src), fs.createWriteStream(dst), function (err) {
-            return callback(err, dst);
+        createDirectory(path.dirname(dst), function (err) {
+            if (err) {
+                return callback(err);
+            }
+            copyStream(fs.createReadStream(src), fs.createWriteStream(dst), function (err) {
+                return callback(err, dst);
+            });
         });
     });
 }
@@ -218,7 +229,7 @@ function deleteDirectory(dir, callback) {
 
 /**
  *
- * @param {string} dir
+ * @param {string} file
  * @param {function} callback
  */
 function forceDelete(file, callback) {
@@ -241,7 +252,7 @@ function forceDelete(file, callback) {
  *
  * @param {string} dir
  * @param {function(file,name,stats):boolean} [fileFilter] returns `true` to include, otherwise to exclude.
- * @param {function(file,name,stats):boolean} [dirFilter] returns `true` to include, otherwise to exclude.
+ * @param {function(file,name,stats):boolean} [dirFilter] returns `true` to include, otherwise to include.
  * @param {function} [callback]
  * @param {boolean} [recursive=false]
  * @returns {*}
