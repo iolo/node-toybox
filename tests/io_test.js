@@ -23,7 +23,7 @@ describe('io', function () {
         require('child_process').exec('rm -rf ' + TEST_DIR, done);
     });
 
-    it('toStream binary', function (done) {
+    it('toStream buffer', function (done) {
         var data = new Buffer(0);
         io.toStream(new Buffer([1, 2, 3, 4, 5]))
             .on('data', function (chunk) {
@@ -32,7 +32,7 @@ describe('io', function () {
             })
             .once('error', assert.ifError)
             .once('end', function () {
-                assert.deepEqual(data.toJSON(), [1, 2, 3, 4, 5]);
+                assert.deepEqual(data.toJSON(), {type:'Buffer', data:[1, 2, 3, 4, 5]});
                 done();
             });
     });
@@ -49,7 +49,7 @@ describe('io', function () {
                 done();
             });
     });
-    it('toBuffer binary', function (done) {
+    it('toBuffer stream', function (done) {
         io.toBuffer(fs.createReadStream(TEST_FILE), function (err, result) {
             assert.ifError(err);
             debug('toBuffer:', result);
@@ -67,7 +67,7 @@ describe('io', function () {
             done();
         });
     });
-    it('toString binary', function (done) {
+    it('toString stream', function (done) {
         io.toString(fs.createReadStream(TEST_FILE), function (err, result) {
             assert.ifError(err);
             debug('toString:', result);
@@ -98,7 +98,7 @@ describe('io', function () {
         });
         io.concatStreams(readables, fs.createWriteStream('/tmp/io-test-stream-concat'), function (err) {
             assert.ifError(err);
-            assert.equal(fs.readFileSync('/tmp/io-test-file-concat', 'utf8'), TEST_DATA + TEST_DATA + TEST_DATA);
+            assert.equal(fs.readFileSync('/tmp/io-test-stream-concat', 'utf8'), TEST_DATA + TEST_DATA + TEST_DATA);
             done();
         });
     });

@@ -1,26 +1,28 @@
 {
-    "name": "node-toybox",
-    "version": "0.1.3",
-    "description": "My Own Extra Stuff for NodeJS",
-    "author": "Dongsu Jang <iolothebard@gmail.com>",
-    "repository": {
-        "type": "git",
-        "url": "git://git@github.com/iolo/node-toybox.git"
-    },
-    "license": "MIT",
-    "engines": {
-        "node": "~0.10"
-    },
-    "dependencies": {
-        "q": "latest",
-        "lodash": "latest",
-        "debug": "latest"
-    },
-    "devDependencies": {
-        "grunt": "latest",
-        "grunt-contrib-jshint": "latest",
-        "grunt-doxx": "^0.1.1",
-        "grunt-mocha-test": "latest",
-        "mocha": "latest"
-    }
+  "name": "node-toybox",
+  "version": "0.2.0",
+  "description": "My Own Extra Stuff for NodeJS",
+  "author": "Dongsu Jang <iolothebard@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git://git@github.com/iolo/node-toybox.git"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=0.12",
+    "npm": ">=2.0"
+  },
+  "dependencies": {
+    "debug": ">=2.2.0",
+    "lodash": ">=3.10.0",
+    "q": ">=1.4.1"
+  },
+  "devDependencies": {
+    "gulp": ">=3.9.0",
+    "gulp-doxx": ">=0.0.4",
+    "gulp-jshint": ">=1.11.2",
+    "gulp-mocha": ">=2.1.3",
+    "gulp-util": ">=3.0.6",
+    "jshint-stylish": ">=2.0.1"
+  }
 }
