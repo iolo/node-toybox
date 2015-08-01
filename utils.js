@@ -9,6 +9,64 @@ var
     _ = require('lodash'),
     Q = require('q');
 
+var REGEXP_INT = /^(\-|\+)?([0-9]+|Infinity)$/;
+
+/**
+ * convert string to strict int.
+ *
+ * @param {string|int} str
+ * @param {int} [fallback]
+ * @returns {int}
+ */
+function toInt(str, fallback) {
+    if (REGEXP_INT.test(str)) {
+        return Number(str);
+    }
+    return fallback;
+}
+
+var REGEXP_NUMBER = /^(\-|\+)?([0-9]+(\.[0-9]+)?|Infinity)$/;
+
+/**
+ * convert string to strict number(float).
+ *
+ * @param {string|number} str
+ * @param {number} [fallback]
+ * @returns {number}
+ */
+function toNumber(str, fallback) {
+    if (typeof str === 'number') {
+        return str;
+    }
+    if (REGEXP_NUMBER.test(str)) {
+        return Number(str);
+    }
+    return fallback;
+}
+
+var REGEXP_TRUE = /^(1|y|t|yes|true|on)$/i;
+var REGEXP_FALSE = /^(0|n|f|no|false|off)$/i;
+
+/**
+ * convert string to strict boolean.
+ *
+ * @param {string|boolean} str
+ * @param {boolean} [fallback]
+ * @returns {boolean}
+ */
+function toBoolean(str, fallback) {
+    if (typeof str === 'boolean') {
+        return str;
+    }
+    if (REGEXP_TRUE.test(str)) {
+        return true;
+    }
+    if (REGEXP_FALSE.test(str)) {
+        return false;
+    }
+    return fallback;
+}
+
 /**
  * get a non-crypto hash code from a string.
  *
@@ -188,6 +246,9 @@ function extractProperty(objects, property) {
 }
 
 module.exports = {
+    toInt: toInt,
+    toNumber: toNumber,
+    toBoolean: toBoolean,
     hashCode: hashCode,
     gravatarUrl: gravatarUrl,
     placeholderUrl: placeholderUrl,
